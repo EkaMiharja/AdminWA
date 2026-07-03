@@ -1,0 +1,10 @@
+node_modules/
+.wwebjs_auth/
+temp/
+logs/
+.env
+.session/
+.cache/
+npm-debug.log
+*.log
+.DS_Store
