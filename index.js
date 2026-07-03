@@ -1,5 +1,4 @@
 const { GoogleGenAI } = require('@google/genai');
-const path = require("path");
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const { handleStickerCommand } = require('./commands/sticker');
@@ -29,28 +28,22 @@ const ai = createGeminiClient(env.GEMINI_API_KEY);
 
 const isDocker = process.platform === "linux";
 
-const authPath = isDocker
-    ? path.join(__dirname, ".wwebjs_auth_docker")
-    : path.join(__dirname, ".wwebjs_auth_windows");
-
-    console.log("================================");
-    console.log("Environment :", isDocker ? "Docker" : "Windows");
-    console.log("Session Path:", authPath);
-    console.log("================================");
-
 const client = new Client({
     authStrategy: new LocalAuth({
-        dataPath: authPath
+        dataPath: ".wwebjs_auth"
     }),
     puppeteer: {
         headless: true,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+        executablePath: isDocker
+            ? process.env.PUPPETEER_EXECUTABLE_PATH
+            : undefined,
         args: isDocker
             ? [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
-                "--disable-gpu"
+                "--disable-gpu",
+                "--disable-features=site-per-process"
             ]
             : []
     }
@@ -65,6 +58,10 @@ client.on('qr', (qr) => {
 // Bot Ready
 client.on('ready', () => {
     console.log('JARVIS Online');
+});
+
+client.on("disconnected", (reason) => {
+    console.log("WhatsApp disconnected:", reason);
 });
 
 // Pesan Masuk
@@ -215,7 +212,7 @@ client.initialize();
 
 async function shutdown(signal) {
 
-    console.log(`Stopping WhatsApp Client (${signal})...`);
+    console.log(`Stopping (${signal})...`);
 
     try {
         await client.destroy();
@@ -223,9 +220,10 @@ async function shutdown(signal) {
         console.error(err);
     }
 
+    // Tunggu Chromium benar-benar berhenti
     setTimeout(() => {
         process.exit(0);
-    }, 2000);
+    }, 3000);   
 
 }
 
