@@ -78,20 +78,16 @@ Contoh:
         const filePath = await downloadVideo(
             result.videoUrl
         );
-
+        
         // Buat media dari file lokal
         const media = MessageMedia.fromFilePath(
             filePath
         );
 
         // Kirim video
-        await message.reply(
-            media,
-            undefined,
-            {
-                sendMediaAsDocument: false
-            }
-        );
+        const chat = await message.getChat();
+
+        await chat.sendMessage(media);
 
 // Hapus file sementara
 await fs.remove(filePath);

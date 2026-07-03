@@ -68,12 +68,14 @@ client.on("disconnected", (reason) => {
 client.on('message', async (message) => {
 
     const now = Math.floor(Date.now() / 1000);
+    const rawBody = message.body.trim();
+    const isTikTokCommand = rawBody.toLowerCase().startsWith('!tt');
 
-    if ((now - message.timestamp) > 15) {
+    if (!isTikTokCommand && (now - message.timestamp) > 15) {
         return;
     }
 
-    const text = message.body.toLowerCase().trim();
+    const text = rawBody.toLowerCase();
 
     logIncomingMessage(message);
 

@@ -23,13 +23,13 @@ async function downloadTikTok(url) {
         );
 
         const data = response.data;
+        const result = data && data.result ? data.result : null;
 
         // Validasi response
         if (
             !data ||
-            data.status !== true ||
-            !data.result ||
-            !Array.isArray(data.result.medias)
+            (data.status !== true && data.success !== true) ||
+            !result
         ) {
 
             return {
@@ -38,22 +38,31 @@ async function downloadTikTok(url) {
 
         }
 
-        const medias = data.result.medias;
+        const medias = Array.isArray(result.medias)
+            ? result.medias
+            : Array.isArray(result.data && result.data.medias)
+                ? result.data.medias
+                : [];
+
+        const getType = media => String(media && media.type ? media.type : "").toLowerCase();
+
+        const getLabel = media => String(media && media.label ? media.label : "").toLowerCase();
 
         // ==========================
         // Prioritas kualitas
         // ==========================
 
         let selected = medias.find(media =>
-            media.type === "video" &&
-            media.label.toLowerCase() === "hd no watermark"
+            getType(media) === "video" &&
+            getLabel(media).includes("hd") &&
+            getLabel(media).includes("no watermark")
         );
 
         if (!selected) {
 
             selected = medias.find(media =>
-                media.type === "video" &&
-                media.label.toLowerCase() === "no watermark"
+                getType(media) === "video" &&
+                getLabel(media).includes("no watermark")
             );
 
         }
@@ -61,7 +70,8 @@ async function downloadTikTok(url) {
         if (!selected) {
 
             selected = medias.find(media =>
-                media.type === "video"
+                getType(media) === "video" &&
+                media.url
             );
 
         }
@@ -119,7 +129,12 @@ async function downloadVideo(url) {
         method: "GET",
         url,
         responseType: "stream",
-        timeout: 60000
+        timeout: 60000,
+        headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            "Referer": "https://www.tiktok.com/",
+            "Accept": "*/*"
+        }
     });
 
     const writer = fs.createWriteStream(filePath);
