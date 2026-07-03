@@ -33,17 +33,13 @@ const client = new Client({
         dataPath: ".wwebjs_auth"
     }),
     puppeteer: {
-        headless: "shell",
+        headless: true,
         args: isDocker
             ? [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--disable-features=site-per-process",
-                "--disable-features=IsolateOrigins",
-                "--disable-blink-features=AutomationControlled",
-                "--window-size=1366,768"
+                "--disable-gpu"
             ]
             : []
     }
