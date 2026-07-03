@@ -26,7 +26,7 @@ const { env } = require('./config/config');
 
 const ai = createGeminiClient(env.GEMINI_API_KEY);
 
-const isDocker = process.env.PUPPETEER_EXECUTABLE_PATH;
+const isDocker = !!process.env.PUPPETEER_EXECUTABLE_PATH;
 
 const client = new Client({
     authStrategy: new LocalAuth({
@@ -35,7 +35,7 @@ const client = new Client({
     }),
     puppeteer: {
         headless: true,
-        executablePath: isDocker || undefined,
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
         args: isDocker
             ? [
                 "--no-sandbox",
@@ -43,8 +43,8 @@ const client = new Client({
                 "--disable-dev-shm-usage",
                 "--disable-gpu"
             ]
-            : []
-    }
+        : []
+}
 });
 
 // QR Code Login
@@ -197,18 +197,25 @@ await message.reply(
 
 client.on("message", async (message) => {
 
-    // Abaikan pesan yang sudah terlalu lama (>10 detik)
+    // Abaikan pesan yang sudah terlalu lama (>15 detik)
     const now = Math.floor(Date.now() / 1000);
 
     if ((now - message.timestamp) > 15) {
         return;
     }
-
-    // Lanjutkan semua command
-    await handleMenuCommand(message);
-    await handleTikTokCommand(message);
-    // dst...
 });
 
 // Jalankan Bot
 client.initialize();
+
+process.on("SIGINT", async () => {
+    console.log("Stopping WhatsApp Client...");
+    await client.destroy();
+    process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+    console.log("Stopping WhatsApp Client...");
+    await client.destroy();
+    process.exit(0);
+});
