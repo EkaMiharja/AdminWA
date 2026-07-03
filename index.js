@@ -1,4 +1,5 @@
 const { GoogleGenAI } = require('@google/genai');
+const path = require("path");
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const { handleStickerCommand } = require('./commands/sticker');
@@ -26,12 +27,20 @@ const { env } = require('./config/config');
 
 const ai = createGeminiClient(env.GEMINI_API_KEY);
 
-const isDocker = !!process.env.PUPPETEER_EXECUTABLE_PATH;
+const isDocker = process.platform === "linux";
+
+const authPath = isDocker
+    ? path.join(__dirname, ".wwebjs_auth_docker")
+    : path.join(__dirname, ".wwebjs_auth_windows");
+
+    console.log("================================");
+    console.log("Environment :", isDocker ? "Docker" : "Windows");
+    console.log("Session Path:", authPath);
+    console.log("================================");
 
 const client = new Client({
     authStrategy: new LocalAuth({
-        clientId: isDocker ? "docker" : "windows",
-        dataPath: ".wwebjs_auth"
+        dataPath: authPath
     }),
     puppeteer: {
         headless: true,
@@ -43,8 +52,8 @@ const client = new Client({
                 "--disable-dev-shm-usage",
                 "--disable-gpu"
             ]
-        : []
-}
+            : []
+    }
 });
 
 // QR Code Login
@@ -60,6 +69,12 @@ client.on('ready', () => {
 
 // Pesan Masuk
 client.on('message', async (message) => {
+
+    const now = Math.floor(Date.now() / 1000);
+
+    if ((now - message.timestamp) > 15) {
+        return;
+    }
 
     const text = message.body.toLowerCase().trim();
 
@@ -195,27 +210,24 @@ await message.reply(
 
 });
 
-client.on("message", async (message) => {
-
-    // Abaikan pesan yang sudah terlalu lama (>15 detik)
-    const now = Math.floor(Date.now() / 1000);
-
-    if ((now - message.timestamp) > 15) {
-        return;
-    }
-});
-
 // Jalankan Bot
 client.initialize();
 
-process.on("SIGINT", async () => {
-    console.log("Stopping WhatsApp Client...");
-    await client.destroy();
-    process.exit(0);
-});
+async function shutdown(signal) {
 
-process.on("SIGTERM", async () => {
-    console.log("Stopping WhatsApp Client...");
-    await client.destroy();
-    process.exit(0);
-});
+    console.log(`Stopping WhatsApp Client (${signal})...`);
+
+    try {
+        await client.destroy();
+    } catch (err) {
+        console.error(err);
+    }
+
+    setTimeout(() => {
+        process.exit(0);
+    }, 2000);
+
+}
+
+process.once("SIGINT", () => shutdown("SIGINT"));
+process.once("SIGTERM", () => shutdown("SIGTERM"));

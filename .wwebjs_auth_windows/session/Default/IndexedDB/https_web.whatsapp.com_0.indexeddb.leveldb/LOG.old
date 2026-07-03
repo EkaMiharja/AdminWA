@@ -1,0 +1,23 @@
+2026/07/03-13:48:48.392 2d80 Creating DB D:\BELAJAR\AdminWA\.wwebjs_auth_windows\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb since it was missing.
+2026/07/03-13:48:48.402 2d80 Reusing MANIFEST D:\BELAJAR\AdminWA\.wwebjs_auth_windows\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/07/03-13:49:47.673 3874 Level-0 table #5: started
+2026/07/03-13:49:47.717 3874 Level-0 table #5: 1084665 bytes OK
+2026/07/03-13:49:47.722 3874 Delete type=0 #3
+2026/07/03-13:49:50.071 7dc Level-0 table #7: started
+2026/07/03-13:49:50.101 7dc Level-0 table #7: 975587 bytes OK
+2026/07/03-13:49:50.104 7dc Delete type=0 #4
+2026/07/03-13:49:50.115 7dc Compacting 1@1 + 1@2 files
+2026/07/03-13:49:50.155 7dc Generated table #8@1: 19287 keys, 811564 bytes
+2026/07/03-13:49:50.155 7dc Compacted 1@1 + 1@2 files => 811564 bytes
+2026/07/03-13:49:50.157 7dc compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/07/03-13:50:30.119 3874 Level-0 table #10: started
+2026/07/03-13:50:30.144 3874 Level-0 table #10: 1094930 bytes OK
+2026/07/03-13:50:30.147 3874 Delete type=2 #5
+2026/07/03-13:50:30.147 3874 Delete type=0 #6
+2026/07/03-13:50:30.147 3874 Delete type=2 #7
+2026/07/03-13:50:31.347 3874 Compacting 1@1 + 1@2 files
+2026/07/03-13:50:31.379 3874 Generated table #11@1: 22117 keys, 1003801 bytes
+2026/07/03-13:50:31.379 3874 Compacted 1@1 + 1@2 files => 1003801 bytes
+2026/07/03-13:50:31.381 3874 compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/07/03-13:50:31.381 3874 Delete type=2 #8
+2026/07/03-13:50:31.382 3874 Delete type=2 #10
