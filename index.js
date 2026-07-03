@@ -194,5 +194,20 @@ await message.reply(
 
 });
 
+client.on("message", async (message) => {
+
+    // Abaikan pesan yang sudah terlalu lama (>10 detik)
+    const now = Math.floor(Date.now() / 1000);
+
+    if ((now - message.timestamp) > 15) {
+        return;
+    }
+
+    // Lanjutkan semua command
+    await handleMenuCommand(message);
+    await handleTikTokCommand(message);
+    // dst...
+});
+
 // Jalankan Bot
 client.initialize();
