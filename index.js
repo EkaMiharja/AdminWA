@@ -30,10 +30,11 @@ const isDocker = process.env.PUPPETEER_EXECUTABLE_PATH;
 
 const client = new Client({
     authStrategy: new LocalAuth({
+        clientId: isDocker ? "docker" : "windows",
         dataPath: ".wwebjs_auth"
     }),
     puppeteer: {
-        headless: true, 
+        headless: true,
         executablePath: isDocker || undefined,
         args: isDocker
             ? [
