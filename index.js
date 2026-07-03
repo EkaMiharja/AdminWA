@@ -32,20 +32,16 @@ const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: ".wwebjs_auth"
     }),
-    puppeteer: {
-        headless: true,
-        executablePath: isDocker
-            ? process.env.PUPPETEER_EXECUTABLE_PATH
-            : undefined,
-        args: isDocker
-            ? [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--disable-features=site-per-process"
-            ]
-            : []
+    ppuppeteer: {
+    headless: true,
+    args: isDocker
+        ? [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--disable-gpu"
+        ]
+        : []
     }
 });
 
