@@ -1,5 +1,13 @@
 const { MessageMedia } = require("whatsapp-web.js");
-const { downloadTikTok } = require("../services/tiktokService");
+const fs = require("fs-extra");
+
+const {
+
+    downloadTikTok,
+
+    downloadVideo
+
+} = require("../services/tiktokService");
 
 /**
  * =====================================================
@@ -66,12 +74,14 @@ Contoh:
             return true;
         }
 
-        // Download video dari URL
-        const media = await MessageMedia.fromUrl(
-            result.videoUrl,
-            {
-                unsafeMime: true
-            }
+        // Download video ke folder temp
+        const filePath = await downloadVideo(
+            result.videoUrl
+        );
+
+        // Buat media dari file lokal
+        const media = MessageMedia.fromFilePath(
+            filePath
         );
 
         // Kirim video
@@ -82,6 +92,9 @@ Contoh:
                 sendMediaAsDocument: false
             }
         );
+
+// Hapus file sementara
+await fs.remove(filePath);
 
     } catch (err) {
 

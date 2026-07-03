@@ -1,3 +1,5 @@
+const fs = require("fs-extra");
+const path = require("path");
 const axios = require("axios");
 
 /**
@@ -103,6 +105,40 @@ async function downloadTikTok(url) {
 
 }
 
+async function downloadVideo(url) {
+
+    const tempDir = path.join(__dirname, "..", "temp");
+
+    await fs.ensureDir(tempDir);
+
+    const fileName = `tiktok_${Date.now()}.mp4`;
+
+    const filePath = path.join(tempDir, fileName);
+
+    const response = await axios({
+        method: "GET",
+        url,
+        responseType: "stream",
+        timeout: 60000
+    });
+
+    const writer = fs.createWriteStream(filePath);
+
+    response.data.pipe(writer);
+
+    await new Promise((resolve, reject) => {
+
+        writer.on("finish", resolve);
+
+        writer.on("error", reject);
+
+    });
+
+    return filePath;
+
+}
+
 module.exports = {
-    downloadTikTok
+    downloadTikTok,
+    downloadVideo
 };
