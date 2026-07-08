@@ -289,9 +289,7 @@ AdminWA
 ├── logs/
 ├── .env
 ├── package.json
-├── index.js
-├── Dockerfile
-└── docker-compose.yml
+└── index.js
 ```
 
 ---
