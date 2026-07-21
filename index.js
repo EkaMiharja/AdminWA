@@ -124,17 +124,17 @@ client.on('message', async (message) => {
     }
 
     // PDF
-    if (await handlePdfCommand(message)) {
+    if (await handlePdfCommand(message, client)) {
         return;
     }
 
     // OCR
-    if (await handleOcrCommand(message)) {
+    if (await handleOcrCommand(message, client)) {
         return;
     }
 
     // Scap
-    if (await handleScapCommand(message)) {
+    if (await handleScapCommand(message, client)) {
         return;
     }
 
@@ -149,37 +149,37 @@ client.on('message', async (message) => {
     }
 
     // TikTok
-    if (await handleTikTokCommand(message)) {
+    if (await handleTikTokCommand(message, client)) {
         return;
     }
 
     // RemoveBg
-    if (await handleRemoveBgCommand(message)) {
+    if (await handleRemoveBgCommand(message, client)) {
         return;
     }
 
     // Delete
-    if (await handleDeleteCommand(message)) {
+    if (await handleDeleteCommand(message, client)) {
         return;
     }
 
     // Kick
-    if (await handleKickCommand(message)) {
+    if (await handleKickCommand(message, client)) {
         return;
     }
 
     // TagAll
-    if (await handleTagAllCommand(message)) {
+    if (await handleTagAllCommand(message, client)) {
         return;
     }
 
     // Group Info
-    if (await handleGroupInfoCommand(message)) {
+    if (await handleGroupInfoCommand(message, client)) {
         return;
     }
 
     // Poll
-    if (await handlePollCommand(message)) {
+    if (await handlePollCommand(message, client)) {
         return;
     }
 

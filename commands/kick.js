@@ -1,4 +1,5 @@
 const { isOwner } = require("../utils/owner");
+const { getGroupData, removeGroupParticipants, safeDelete } = require("../utils/media");
 
 const {
     getMentionParticipants,
@@ -7,64 +8,43 @@ const {
     isBotAdmin
 } = require("../utils/groupUtils");
 
-/**
- * =====================================================
- * COMMAND : !kick
- * Fungsi  : Mengeluarkan anggota dari grup
- * =====================================================
- */
-
-async function handleKickCommand(message) {
+async function handleKickCommand(message, client) {
 
     const text = message.body.trim();
 
-    // Bukan command
     if (!text.toLowerCase().startsWith("!kick")) {
         return false;
     }
 
-    // Harus di grup
-    const chat = await message.getChat();
+    const chatId = message.from;
 
-    if (!chat.isGroup) {
-
+    if (!chatId.includes("@g.us")) {
         await message.reply(
             "Command ini hanya dapat digunakan di grup."
         );
-
         return true;
     }
 
-    // Hanya owner
     if (!(await isOwner(message))) {
-
         await message.reply(
             "Command ini hanya dapat digunakan oleh owner bot."
         );
-
         return true;
     }
 
-    // Bot harus admin
-    if (!(await isBotAdmin(message))) {
-
+    if (!(await isBotAdmin(message, client))) {
         await message.reply(
             "Bot harus menjadi admin grup."
         );
-
         return true;
     }
 
-    // Ambil semua anggota yang di-mention
-    const participants =
-        await getMentionParticipants(message);
+    const participants = await getMentionParticipants(message, client);
 
     if (participants.length === 0) {
-
         await message.reply(
             "Silakan mention anggota yang ingin dikeluarkan.\n\nContoh:\n!kick @user"
         );
-
         return true;
     }
 
@@ -75,58 +55,47 @@ async function handleKickCommand(message) {
 
         try {
 
-            // Jangan kick bot
             if (isBot(message, participant)) {
                 failed++;
                 continue;
             }
 
-            // Jangan kick admin
             if (isAdmin(participant)) {
                 failed++;
                 continue;
             }
 
-            await chat.removeParticipants([
-                participant.id._serialized
-            ]);
+            const result = await removeGroupParticipants(
+                client, chatId, [participant.id._serialized]
+            );
 
-            success++;
+            if (result) {
+                success++;
+            } else {
+                failed++;
+            }
 
         } catch (err) {
-
             console.error(err);
-
             failed++;
-
         }
 
     }
 
-    // Hapus command
-    try {
-        await message.delete(true);
-    } catch (_) {}
+    await safeDelete(message);
 
-    // Kirim hasil
     if (success > 0 && failed === 0) {
-
         await message.reply(
             `Berhasil mengeluarkan ${success} anggota.`
         );
-
     } else if (success > 0 && failed > 0) {
-
         await message.reply(
             `Berhasil: ${success}\nGagal: ${failed}`
         );
-
     } else {
-
         await message.reply(
-            "❌ Tidak ada anggota yang berhasil dikeluarkan."
+            "Tidak ada anggota yang berhasil dikeluarkan."
         );
-
     }
 
     return true;

@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { MessageMedia } = require("whatsapp-web.js");
 const { createPdf } = require("../services/pdfService");
+const { downloadMessageMedia } = require("../utils/media");
 
 // Menyimpan sesi PDF setiap chat
 const pdfSessions = new Map();
@@ -13,7 +14,7 @@ const pdfSessions = new Map();
  * =====================================================
  */
 
-async function handlePdfCommand(message) {
+async function handlePdfCommand(message, client) {
 
     const body = message.body.trim().toLowerCase();
     const chatId = message.from;
@@ -52,7 +53,7 @@ untuk membatalkan.`
     // Jika sedang mode PDF dan user mengirim gambar
     if (pdfSessions.has(chatId) && message.hasMedia) {
 
-        const media = await message.downloadMedia();
+        const media = await downloadMessageMedia(message, client);
 
         if (media && media.mimetype.startsWith("image/")) {
 

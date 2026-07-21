@@ -1,23 +1,13 @@
-/**
- * =====================================================
- * COMMAND : !sticker
- * Fungsi  : Mengubah gambar menjadi sticker WhatsApp
- * Cara    :
- * 1. Reply gambar
- * 2. Ketik !sticker
- * =====================================================
- */
+const { getQuotedMedia } = require('../utils/media');
 
-async function handleStickerCommand(message) {
+async function handleStickerCommand(message, client) {
 
     const text = message.body.toLowerCase().trim();
 
-    // Bukan command !sticker
     if (text !== '!sticker') {
         return false;
     }
 
-    // Harus reply pesan
     if (!message.hasQuotedMsg) {
         await message.reply(
             'Silakan reply gambar dengan command !sticker.'
@@ -25,26 +15,25 @@ async function handleStickerCommand(message) {
         return true;
     }
 
-    // Ambil pesan yang direply
-    const quotedMessage = await message.getQuotedMessage();
+    try {
 
-    // Harus berupa gambar
-    if (!quotedMessage.hasMedia) {
-        await message.reply(
-            'Pesan yang direply tidak mengandung gambar.'
-        );
-        return true;
+        const media = await getQuotedMedia(message, client);
+
+        if (!media) {
+            await message.reply('Gagal mengunduh gambar.');
+            return true;
+        }
+
+        await message.reply(media, undefined, {
+            sendMediaAsSticker: true,
+            stickerName: 'JARVIS Sticker',
+            stickerAuthor: 'Anonymous'
+        });
+
+    } catch (err) {
+        console.error(err);
+        await message.reply('Gagal membuat sticker.');
     }
-
-    // Download media
-    const media = await quotedMessage.downloadMedia();
-
-    // Kirim sebagai sticker
-    await message.reply(media, undefined, {
-        sendMediaAsSticker: true,
-        stickerName: 'JARVIS Sticker',
-        stickerAuthor: 'Anonymous'
-    });
 
     return true;
 }

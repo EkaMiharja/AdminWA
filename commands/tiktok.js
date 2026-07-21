@@ -16,7 +16,7 @@ const {
  * =====================================================
  */
 
-async function handleTikTokCommand(message) {
+async function handleTikTokCommand(message, client) {
 
     const body = message.body.trim();
 
@@ -85,9 +85,9 @@ Contoh:
         );
 
         // Kirim video
-        const chat = await message.getChat();
+        const chatId = message.fromMe ? message.to : message.from;
 
-        await chat.sendMessage(media);
+        await client.sendMessage(chatId, media);
 
 // Hapus file sementara
 await fs.remove(filePath);

@@ -1,15 +1,8 @@
 const { isOwner } = require("../utils/owner");
 const { isBotAdmin } = require("../utils/groupUtils");
+const { getGroupData, getGroupInviteCode } = require("../utils/media");
 
-/**
- * =====================================================
- * COMMAND : !groupinfo
- * Fungsi  : Menampilkan informasi grup
- * Author  : M. Eka
- * =====================================================
- */
-
-async function handleGroupInfoCommand(message) {
+async function handleGroupInfoCommand(message, client) {
 
     const text = message.body.trim();
 
@@ -17,79 +10,58 @@ async function handleGroupInfoCommand(message) {
         return false;
     }
 
-    const chat = await message.getChat();
+    const chatId = message.from;
 
-    if (!chat.isGroup) {
-
+    if (!chatId.includes("@g.us")) {
         await message.reply(
-            "❌ Command ini hanya dapat digunakan di grup."
+            "Command ini hanya dapat digunakan di grup."
         );
-
         return true;
     }
 
     if (!(await isOwner(message))) {
-
         await message.reply(
-            "❌ Command ini hanya dapat digunakan oleh owner bot."
+            "Command ini hanya dapat digunakan oleh owner bot."
         );
-
         return true;
     }
 
     try {
 
-        const groupName = chat.name;
-        const groupId = chat.id._serialized;
+        const groupData = await getGroupData(client, chatId);
+        if (!groupData) {
+            await message.reply("Gagal mengambil informasi grup.");
+            return true;
+        }
 
-        const memberCount = chat.participants.length;
+        const groupName = groupData.name;
+        const groupId = groupData.id._serialized;
 
-        const adminCount = chat.participants.filter(
+        const participants = groupData.participants || [];
+        const memberCount = participants.length;
+        const adminCount = participants.filter(
             p => p.isAdmin || p.isSuperAdmin
         ).length;
 
         let owner = "-";
-
-        if (chat.groupMetadata?.owner) {
-
-            owner =
-                chat.groupMetadata.owner.user ??
-                chat.groupMetadata.owner;
-
+        if (groupData.groupMetadata?.owner) {
+            owner = groupData.groupMetadata.owner.user ??
+                groupData.groupMetadata.owner;
         }
 
-        const description =
-            chat.groupMetadata?.desc ||
+        const description = groupData.groupMetadata?.desc ||
             "Tidak ada deskripsi.";
 
-        const botAdmin =
-            await isBotAdmin(message);
+        const botAdmin = await isBotAdmin(message, client);
 
-        // Ambil link grup
         let groupLink = "-";
-
         if (botAdmin) {
-
-            try {
-
-                const inviteCode =
-                    await chat.getInviteCode();
-
-                groupLink =
-                    `https://chat.whatsapp.com/${inviteCode}`;
-
-            } catch {
-
-                groupLink =
-                    "Tidak dapat mengambil link grup.";
-
-            }
-
+            const inviteCode = await getGroupInviteCode(client, chatId);
+            groupLink = inviteCode
+                ? `https://chat.whatsapp.com/${inviteCode}`
+                : "Tidak dapat mengambil link grup.";
         } else {
-
-            groupLink =
-                "Bot bukan admin.";
-
+            groupLink = "Bot bukan admin.";
         }
 
         const info =
@@ -115,13 +87,8 @@ async function handleGroupInfoCommand(message) {
         await message.reply(info);
 
     } catch (err) {
-
         console.error(err);
-
-        await message.reply(
-            "Gagal mengambil informasi grup."
-        );
-
+        await message.reply("Gagal mengambil informasi grup.");
     }
 
     return true;

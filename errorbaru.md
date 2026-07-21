@@ -1,0 +1,15 @@
+delete error: { _error: true, msg: 'no id', keys: [ 'type', 'kind', 'body' ] }
+[120363409309810191@g.us] !del
+delete error: {
+  _error: true,
+  msg: 'msg not found',
+  stanzaId: 'AC951F91591B11F216B26CA4DCD6AA21',
+  chatId: '120363409309810191@g.us',
+  formatsTried: [
+    'AC951F91591B11F216B26CA4DCD6AA21',
+    'AC951F91591B11F216B26CA4DCD6AA21@120363409309810191@g.us',
+    'false_120363409309810191@g.us_AC951F91591B11F216B26CA4DCD6AA21',
+    'true_120363409309810191@g.us_AC951F91591B11F216B26CA4DCD6AA21',
+    'AC951F91591B11F216B26CA4DCD6AA21'
+  ]
+}

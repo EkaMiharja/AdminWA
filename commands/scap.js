@@ -1,27 +1,15 @@
-/**
- * =====================================================
- * COMMAND : !scap <teks>
- * Fungsi  : Membuat sticker meme dengan teks
- * Cara    :
- * 1. Reply gambar
- * 2. Ketik !scap teksnya
- * =====================================================
- */
-
 const { MessageMedia } = require("whatsapp-web.js");
 const { createScapImage } = require("../services/scapService");
+const { getQuotedMedia } = require("../utils/media");
 
-// fungsi untuk menangani perintah !scap
-async function handleScapCommand(message) {
+async function handleScapCommand(message, client) {
 
     const body = message.body.trim();
 
-    // Bukan command !scap
     if (!body.toLowerCase().startsWith("!scap")) {
         return false;
     }
 
-    // Ambil caption
     const caption = body.slice(5).trim();
 
     if (!caption) {
@@ -31,20 +19,9 @@ async function handleScapCommand(message) {
         return true;
     }
 
-    // Harus reply gambar
     if (!message.hasQuotedMsg) {
         await message.reply(
             "Silakan reply gambar kemudian ketik !scap <teks>"
-        );
-        return true;
-    }
-
-    const quotedMessage = await message.getQuotedMessage();
-
-    // Harus gambar
-    if (!quotedMessage.hasMedia) {
-        await message.reply(
-            "Pesan yang direply harus berupa gambar."
         );
         return true;
     }
@@ -53,30 +30,25 @@ async function handleScapCommand(message) {
 
         await message.reply("Membuat sticker...");
 
-        // Download gambar
-        const media = await quotedMessage.downloadMedia();
+        const media = await getQuotedMedia(message, client);
 
         if (!media) {
             await message.reply("Gagal mengunduh gambar.");
             return true;
         }
 
-        // Base64 -> Buffer
         const imageBuffer = Buffer.from(media.data, "base64");
 
-        // Proses gambar
         const outputBuffer = await createScapImage(
             imageBuffer,
             caption
         );
 
-        // Buffer -> MessageMedia
         const stickerMedia = new MessageMedia(
             "image/png",
             outputBuffer.toString("base64")
         );
 
-        // Kirim sebagai sticker
         await message.reply(stickerMedia, undefined, {
             sendMediaAsSticker: true,
             stickerName: "JARVIS Scap",
